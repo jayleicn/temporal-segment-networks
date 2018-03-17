@@ -69,7 +69,7 @@ Besides software, GPU(s) are required for optical flow extraction and model trai
 
 Use git to clone this repository and its submodules
 ```
-git clone --recursive https://github.com/yjxiong/temporal-segment-networks
+git clone --recursive https://github.com/jayleicn/temporal-segment-networks.git 
 ```
 
 Then run the building scripts to build the libraries.

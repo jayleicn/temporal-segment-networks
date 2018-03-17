@@ -49,8 +49,8 @@ def run_optical_flow(vid_item, dev_id=0):
     flow_x_path = '{}/flow_x'.format(out_full_path)
     flow_y_path = '{}/flow_y'.format(out_full_path)
 
-    cmd = os.path.join(df_path + 'build/extract_gpu')+' -f {} -x {} -y {} -i {} -b 20 -t 1 -d {} -s 1 -o {} -w {} -h {}'.format(
-        quote(vid_path), quote(flow_x_path), quote(flow_y_path), quote(image_path), dev_id, out_format, new_size[0], new_size[1])
+    cmd = os.path.join(df_path + 'build/extract_gpu')+' -f {} -x {} -y {} -i {} -b 20 -t 1 -d {} -s {} -o {} -w {} -h {}'.format(
+        quote(vid_path), quote(flow_x_path), quote(flow_y_path), quote(image_path), dev_id, step_size, out_format, new_size[0], new_size[1])
 
     os.system(cmd)
     print '{} {} done'.format(vid_id, vid_name)
@@ -73,8 +73,8 @@ def run_warp_optical_flow(vid_item, dev_id=0):
     flow_x_path = '{}/flow_x'.format(out_full_path)
     flow_y_path = '{}/flow_y'.format(out_full_path)
 
-    cmd = os.path.join(df_path + 'build/extract_warp_gpu')+' -f {} -x {} -y {} -b 20 -t 1 -d {} -s 1 -o {}'.format(
-        vid_path, flow_x_path, flow_y_path, dev_id, out_format)
+    cmd = os.path.join(df_path + 'build/extract_warp_gpu')+' -f {} -x {} -y {} -b 20 -t 1 -d {} -s {} -o {}'.format(
+        vid_path, flow_x_path, flow_y_path, dev_id, step_size, out_format)
 
     os.system(cmd)
     print 'warp on {} {} done'.format(vid_id, vid_name)
@@ -91,7 +91,8 @@ if __name__ == '__main__':
     parser.add_argument("--df_path", type=str, default='./lib/dense_flow/', help='path to the dense_flow toolbox')
     parser.add_argument("--out_format", type=str, default='dir', choices=['dir','zip'],
                         help='path to the dense_flow toolbox')
-    parser.add_argument("--ext", type=str, default='avi', choices=['avi','mp4'], help='video file extensions')
+    parser.add_argument("--ext", type=str, default='mp4', choices=['avi','mp4'], help='video file extensions')
+    parser.add_argument("--step", type=int, default=1, help="step size to extract frames / optical flow images")
     parser.add_argument("--new_width", type=int, default=0, help='resize image width')
     parser.add_argument("--new_height", type=int, default=0, help='resize image height')
     parser.add_argument("--num_gpu", type=int, default=8, help='number of GPU')
@@ -104,6 +105,7 @@ if __name__ == '__main__':
     flow_type = args.flow_type
     df_path = args.df_path
     out_format = args.out_format
+    step_size = args.step
     ext = args.ext
     new_size = (args.new_width, args.new_height)
     NUM_GPU = args.num_gpu
@@ -113,7 +115,9 @@ if __name__ == '__main__':
         os.makedirs(out_path)
 
     vid_list = glob.glob(src_path+'/*/*.'+ext)
-    print len(vid_list)
+    exists_file_list = [name for name in os.listdir(out_path) if os.path.isdir(os.path.join(out_path, name))]
+    vid_list = [x for x in vid_list if os.path.basename(x).split(".")[0] not in exists_file_list]
+    print(len(vid_list))
     pool = Pool(num_worker)
     if flow_type == 'tvl1':
         pool.map(run_optical_flow, zip(vid_list, xrange(len(vid_list))))

@@ -42,6 +42,25 @@ def flow_stack_oversample(flow_stack, crop_dims):
     return crops
 
 
+def flow_center_crop(flow_stack, crop_dims):
+    """
+    This function performs center crop.
+    :param flow_stack:
+    :param crop_dims:
+    :return:
+    """
+    im_shape = np.array(flow_stack.shape[1:])
+    crop_dims = np.array(crop_dims)
+    h0 = (im_shape[0] - crop_dims[0])/2
+    w0 = (im_shape[1] - crop_dims[1])/2
+    h1 = h0 + crop_dims[0]
+    w1 = w0 + crop_dims[1]
+    crops = np.empty((1, flow_stack.shape[0], crop_dims[0], crop_dims[1]),
+                     dtype=flow_stack.dtype)
+    crops[0] = flow_stack[:, h0:h1, w0:w1]
+    return crops
+
+
 def rgb_oversample(image, crop_dims):
     """
     Crop images into the four corners, center, and their mirrored versions.

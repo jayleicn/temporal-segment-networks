@@ -4,7 +4,7 @@ import sys
 import caffe
 from caffe.io import oversample
 import numpy as np
-from utils.io import flow_stack_oversample, fast_list2arr
+from utils.io import flow_stack_oversample, fast_list2arr, flow_center_crop
 import cv2
 
 
@@ -73,4 +73,17 @@ class CaffeNet(object):
         out = self._net.forward(blobs=[score_name,], data=data)
         return out[score_name].copy()
 
+    def extract_single_flow_stack(self, frame, feature_layer, frame_size=None):
 
+        if frame_size is not None:
+            frame = fast_list2arr([cv2.resize(x, frame_size) for x in frame])
+        else:
+            frame = fast_list2arr(frame)
+
+        os_frame = flow_center_crop(frame, (self._sample_shape[2], self._sample_shape[3]))
+
+        data = os_frame - np.float32(128.0)
+        self._net.blobs['data'].reshape(*data.shape)
+        self._net.reshape()
+        out = self._net.forward(blobs=[feature_layer,], data=data)
+        return out[feature_layer].copy()
