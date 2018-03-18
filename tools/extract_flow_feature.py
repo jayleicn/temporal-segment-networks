@@ -11,8 +11,10 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser()
 parser.add_argument('frame_path', type=str, help="root directory holding the frames")
 parser.add_argument("h5_path", type=str, help="file path to store the extracted features")
-parser.add_argument('net_proto', type=str)
-parser.add_argument('net_weights', type=str)
+parser.add_argument('--net_proto', type=str, 
+                    default="models/bn_inception_kinetics_flow_pretrained/bn_inception_flow_deploy.prototxt")
+parser.add_argument('--net_weights', type=str, 
+                    default="models/bn_inception_kinetics_flow_pretrained/bn_inception_kinetics_flow_pretrained.caffemodel")
 parser.add_argument('--flow_x_prefix', type=str, help="prefix of x direction flow images", default='flow_x_')
 parser.add_argument('--flow_y_prefix', type=str, help="prefix of y direction flow images", default='flow_y_')
 parser.add_argument("--caffe_path", type=str, default='./lib/caffe-action/', help='path to the caffe toolbox')
@@ -37,16 +39,15 @@ def build_vid_list():
     return zip(*vid)
 
 
-video_list = build_vid_list()
+video_info_list = build_vid_list()
 
 feature_name = 'global_pool'
 
-print(len(video_list))
+print(len(video_info_list))
 
 def build_net():
     global net
-    my_id = 1
-    net = CaffeNet(args.net_proto, args.net_weights, my_id-1)
+    net = CaffeNet(args.net_proto, args.net_weights, 0)
 
 
 def extract_single_video(video):
@@ -78,12 +79,12 @@ def extract_single_video(video):
 build_net()
 
 with h5py.File(args.h5_path, "a") as h5_f:
-    h5_f.attrs["desc"] = "flow feature extracted from TSN"
+    h5_f.attrs["desc"] = "Flow feature extracted from TSN, Nx1024, each 1024 is computed from 5 flow image pairs"
     exist_keys = h5_f.keys()
-    for i in tqdm(range(len(video_list))):
-        cur_key = video_list[i][0]
+    for i in tqdm(range(len(video_info_list))):
+        cur_key = video_info_list[i][0]
         if cur_key not in exist_keys:
-            cur_vid_feature = extract_single_video(video_list[i])
+            cur_vid_feature = extract_single_video(video_info_list[i])
             h5_f.create_dataset(cur_key, data=cur_vid_feature)
 
 

@@ -1,3 +1,13 @@
+# compressed files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
 # local files
 local/
 logs/

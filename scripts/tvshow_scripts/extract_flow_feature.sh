@@ -1,0 +1,2 @@
+python ./tools/extract_flow_feature.py /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/met  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/met_flow.h5
+python ./tools/extract_flow_feature.py /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/bbt  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/bbt_flow.h5
