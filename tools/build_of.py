@@ -6,6 +6,7 @@ import sys
 from pipes import quote
 from multiprocessing import Pool, current_process
 
+from tqdm import tqdm
 import argparse
 out_path = ''
 
@@ -114,10 +115,12 @@ if __name__ == '__main__':
         print "creating folder: "+out_path
         os.makedirs(out_path)
 
-    vid_list = glob.glob(src_path+'/*/*.'+ext)
+    file_pattern = os.path.join(src_path, '*/*.'+ext)
+    vid_list = glob.glob(file_pattern)
     exists_file_list = [name for name in os.listdir(out_path) if os.path.isdir(os.path.join(out_path, name))]
     vid_list = [x for x in vid_list if os.path.basename(x).split(".")[0] not in exists_file_list]
-    print(len(vid_list))
+    # vid_list = vid_list[:3] 
+    print("Number of videos to extract: %d" % len(vid_list))
     pool = Pool(num_worker)
     if flow_type == 'tvl1':
         pool.map(run_optical_flow, zip(vid_list, xrange(len(vid_list))))

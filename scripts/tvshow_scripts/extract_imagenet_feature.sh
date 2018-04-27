@@ -1,5 +1,11 @@
-python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/bbt  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/bbt_imagenet.h5
-python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/met  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/met_imagenet.h5
+# python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/bbt  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/bbt_imagenet.h5
+# python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/met  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/met_imagenet.h5
+# python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/grey  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/grey_imagenet.h5
+# python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/friends  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/friends_imagenet.h5
+# python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/house  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/house_imagenet.h5
+# python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/castle  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/castle_imagenet.h5
 
 
-python ./tools/extract_visual_feature.py places /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/tst_frame  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/tst_places.h5
+python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/bbt  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/bbt_imagenet_scores.h5
+python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/met  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/met_imagenet_scores.h5
+python ./tools/extract_visual_feature.py imagenet /net/bvisionserver4/playpen1/jielei/data/preprocessed_video_data/dense_flow_frames/friends  /net/bvisionserver4/playpen10/jielei/data/dense_flow_features/friends_imagenet_scores.h5

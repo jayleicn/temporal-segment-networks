@@ -12,9 +12,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('frame_path', type=str, help="root directory holding the frames")
 parser.add_argument("h5_path", type=str, help="file path to store the extracted features")
 parser.add_argument('--net_proto', type=str, 
-                    default="models/bn_inception_kinetics_flow_pretrained/bn_inception_flow_deploy.prototxt")
+                    default="models/hmdb51/tsn_bn_inception_flow_deploy.prototxt")
 parser.add_argument('--net_weights', type=str, 
-                    default="models/bn_inception_kinetics_flow_pretrained/bn_inception_kinetics_flow_pretrained.caffemodel")
+                    default="models/hmdb51_split_1_tsn_flow_reference_bn_inception.caffemodel")
 parser.add_argument('--flow_x_prefix', type=str, help="prefix of x direction flow images", default='flow_x_')
 parser.add_argument('--flow_y_prefix', type=str, help="prefix of y direction flow images", default='flow_y_')
 parser.add_argument("--caffe_path", type=str, default='./lib/caffe-action/', help='path to the caffe toolbox')
@@ -41,7 +41,8 @@ def build_vid_list():
 
 video_info_list = build_vid_list()
 
-feature_name = 'global_pool'
+# feature_name = 'global_pool'
+feature_name = "fc-action"
 
 print(len(video_info_list))
 
@@ -58,7 +59,9 @@ def extract_single_video(video):
 
     stack_depth = 5
 
-    frame_ticks = range(1, frame_cnt, stack_depth)  # the images are 1-indexed
+    # a small bug here that causes the mismatch between flow / imagenet
+    # frame_ticks = range(1, frame_cnt, stack_depth)  # the images are 1-indexed
+    frame_ticks = range(1, frame_cnt + 1, stack_depth)  # the images are 1-indexed
 
     frame_features = []
     for tick in frame_ticks:
@@ -86,8 +89,4 @@ with h5py.File(args.h5_path, "a") as h5_f:
         if cur_key not in exist_keys:
             cur_vid_feature = extract_single_video(video_info_list[i])
             h5_f.create_dataset(cur_key, data=cur_vid_feature)
-
-
-
-
 

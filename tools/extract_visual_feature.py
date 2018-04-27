@@ -34,7 +34,7 @@ class PlacesResNet50Feature(nn.Module):
             os.system('wget ' + weight_url)
 
         places_resnet50 = torch.load(model_file)
-        self.res5c_feature = nn.Sequential(*list(places_resnet50.children())[:-1])
+        self.res5c_feature = places_resnet50 # nn.Sequential(*list(places_resnet50.children())[:-1])
 
     def forward(self, x):
         """
@@ -48,8 +48,8 @@ class PlacesResNet50Feature(nn.Module):
 class ImageNetResNet152Feature(nn.Module):
     def __init__(self):
         super(ImageNetResNet152Feature, self).__init__()
-        resnet152 = models.resnet152(pretrained=True)
-        self.res5c_feature = nn.Sequential(*list(resnet152.children())[:-1])
+        resnet152 = models.resnet50(pretrained=True)
+        self.res5c_feature = resnet152 # nn.Sequential(*list(resnet152.children())[:-1])
 
     def forward(self, x):
         """
@@ -140,7 +140,6 @@ def extract_all(args, video_names):
                 continue
             f_pool5.create_dataset(cur_subdir, data=data_pool5)
     f_pool5.close()
-
 
 if __name__ == "__main__":
     # settings
