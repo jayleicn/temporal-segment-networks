@@ -4,7 +4,7 @@ import sys
 import caffe
 from caffe.io import oversample
 import numpy as np
-from utils.io import flow_stack_oversample, fast_list2arr, flow_center_crop
+from utils.io import flow_stack_oversample, fast_list2arr, image_array_center_crop
 import cv2
 
 
@@ -62,6 +62,7 @@ class CaffeNet(object):
             frame = fast_list2arr(frame)
 
         if over_sample:
+            # (4 corner + 1 center) * 2
             os_frame = flow_stack_oversample(frame, (self._sample_shape[2], self._sample_shape[3]))
         else:
             os_frame = fast_list2arr([frame])
@@ -73,17 +74,56 @@ class CaffeNet(object):
         out = self._net.forward(blobs=[score_name,], data=data)
         return out[score_name].copy()
 
-    def extract_single_flow_stack(self, frame, feature_layer, frame_size=None):
+
+    def extract_batch_rgb(self, frame, feature_layers, frame_size=None):
+        """
+        batch(>=1) * (3, H, W) RGB images as inputs, center crop is used.
+        fc_action layer  dim=num_cls
+        top_cls_global_pool dim=2048 [only for Inception V3]
+        global_pool dim=1024 [only for BNInception]
+
+        param:: frame: a list of cv2 arrays (numpy)
+        param:: feature_layers: a list of blobs you want to get
+        param:: frame_size: if not None, do resize
+        return:: a list of data from blobs specified by feature layer
+        """
+        if frame_size is not None:
+            frame = [cv2.resize(x, frame_size) for x in frame]
+
+        frame = fast_list2arr(frame)
+  
+        crop_frame = image_array_center_crop(frame, (self._sample_shape[2], self._sample_shape[3]))
+        data = fast_list2arr([self._transformer.preprocess('data', x) for x in crop_frame])
+
+        self._net.blobs['data'].reshape(*data.shape)
+        self._net.reshape()
+        out = self._net.forward(blobs=feature_layers, data=data)
+        return [out[feat_layer].copy().squeeze() for feat_layer in feature_layers]
+
+
+    def extract_batch_flow_stack(self, frame, feature_layers, frame_size=None):
+        """
+        batch(>=1) * 5 pairs of flow images as inputs, center crop is used.
+        fc_action layer  dim=num_cls
+        top_cls_global_pool dim=2048 [only for Inception V3]
+        global_pool dim=1024 [only for BNInception]
+
+        param:: frame: a list of cv2 arrays (numpy)
+        param:: feature_layers: a list of blobs you want to get
+        param:: frame_size: if not None, do resize
+        return:: a list of data from blobs specified by feature layer
+        """
 
         if frame_size is not None:
             frame = fast_list2arr([cv2.resize(x, frame_size) for x in frame])
         else:
             frame = fast_list2arr(frame)
-
-        os_frame = flow_center_crop(frame, (self._sample_shape[2], self._sample_shape[3]))
-
-        data = os_frame - np.float32(128.0)
+        crop_frame = image_array_center_crop(frame, (self._sample_shape[2], self._sample_shape[3]))
+        crop_frame = crop_frame.reshape((-1, )+ self._sample_shape[1:])  # make batch, only needed for flow
+        data = crop_frame - np.float32(128.0)
         self._net.blobs['data'].reshape(*data.shape)
         self._net.reshape()
-        out = self._net.forward(blobs=[feature_layer,], data=data)
-        return out[feature_layer].copy()
+        out = self._net.forward(blobs=feature_layers, data=data)
+        return [out[feat_layer].copy().squeeze() for feat_layer in feature_layers]
+
+

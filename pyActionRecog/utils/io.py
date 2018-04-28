@@ -42,22 +42,28 @@ def flow_stack_oversample(flow_stack, crop_dims):
     return crops
 
 
-def flow_center_crop(flow_stack, crop_dims):
+def image_array_center_crop(image_array, crop_dims):
     """
     This function performs center crop.
-    :param flow_stack:
+    :param image_array: numpy array of (B*10, H, W) for flow or (B, 3, H, W) for RGB
     :param crop_dims:
-    :return:
+    :return: crops (1, B*10, cropH, cropW) for flow or (B, 3, cropH, cropW) for RGB 
     """
-    im_shape = np.array(flow_stack.shape[1:])
+    im_shape = np.array(image_array.shape[-2:])
     crop_dims = np.array(crop_dims)
     h0 = (im_shape[0] - crop_dims[0])/2
     w0 = (im_shape[1] - crop_dims[1])/2
     h1 = h0 + crop_dims[0]
     w1 = w0 + crop_dims[1]
-    crops = np.empty((1, flow_stack.shape[0], crop_dims[0], crop_dims[1]),
-                     dtype=flow_stack.dtype)
-    crops[0] = flow_stack[:, h0:h1, w0:w1]
+
+    if len(image_array.shape) == 3:
+        crops = np.empty((1, image_array.shape[0], crop_dims[0], crop_dims[1]),dtype=image_array.dtype)
+        crops[0] = image_array[:, h0:h1, w0:w1]
+    elif len(image_array.shape) == 4:
+        # crops = np.empty((image_array.shape[:2] + crop_dims),dtype=image_array.dtype)
+        crops = image_array[:, :, h0:h1, w0:w1].copy()
+    else:
+        print("Wrong input size, should be 3 or 4")
     return crops
 
 
