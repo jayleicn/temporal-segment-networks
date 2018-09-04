@@ -106,10 +106,15 @@ if __name__ == "__main__":
         if args.modality == "flow":
             vid_lengths = [len(glob.glob(os.path.join(vid[1],args.flow_x_prefix + "*.jpg"))) for vid in vid_names]
             vid_lengths_y = [len(glob.glob(os.path.join(vid[1],args.flow_y_prefix + "*.jpg"))) for vid in vid_names]
+            not_equal = []
             for i in range(len(vid_lengths)):
-                assert vid_lengths[i] == vid_lengths_y[i]
+                if vid_lengths[i] != vid_lengths_y[i]:
+                    not_equal.append(i)
         elif args.modality == "rgb":
             vid_lengths = [len(glob.glob(os.path.join(vid[1],args.rgb_prefix + "*.jpg"))) for vid in vid_names]
+        if len(not_equal) != 0:
+            print([vid_names[i] for i in not_equal])
+            sys.exit(1)
         vid = zip(*vid_names)
         vid.append(tuple(vid_lengths))
         return zip(*vid)
@@ -140,6 +145,7 @@ if __name__ == "__main__":
                     # print(cur_vid_feature.shape)
                     # print(cur_vid_score.shape)
                     # sys.exit(0)
+                    # possiblely zero
                     h5_feat.create_dataset(cur_key, data=cur_vid_feature)
                     h5_score.create_dataset(cur_key, data=cur_vid_score)
                 except Exception as e:
